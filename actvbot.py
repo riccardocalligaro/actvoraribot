@@ -53,21 +53,17 @@ def select_tratta(message):
 def invia_tratta(message):
     global selezionata
     global trattaUrbana
-    global trattaExtraUrbana
     selezionata = True
     trattaUrbana = True
-    trattaExtraUrbana = False
     bot.reply_to(message, "🚍 Inserire tratta: (es.12L, 3)", reply_markup = markupLista)
 
 
 @bot.message_handler(func=lambda message: message.text == '🏠 Extraurbana')
 def invia_tratta(message):
     global selezionata
-    global trattaUrbana
     global trattaExtraUrbana
     selezionata = True
     trattaExtraUrbana = True
-    trattaUrbana = False
     bot.reply_to(message, "🚍 Inserire tratta: (es.6E, 83E)", reply_markup = markupLista)
 
 
