@@ -5,7 +5,8 @@ from flask import Flask, request
 from telebot import types
 import requests
 
-bot = telebot.TeleBot("729731832:AAHvguiztk7jnilSUPQsJORw6O4lEYcb2qc")
+token = os.environ['TELEGRAM_TOKEN']
+bot = telebot.TeleBot(token)
 server = Flask(__name__)
 
 selezionata = False
@@ -77,7 +78,7 @@ def echo_all(message):
 bot.polling()
 
 
-@server.route('/' + '729731832:AAHvguiztk7jnilSUPQsJORw6O4lEYcb2qc', methods=['POST'])
+@server.route('/' + token, methods=['POST'])
 def getMessage():
     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
     return "!", 200
@@ -86,7 +87,7 @@ def getMessage():
 @server.route("/")
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(url='https://telegram-actv-bot.herokuapp.com/' + '729731832:AAHvguiztk7jnilSUPQsJORw6O4lEYcb2qc')
+    bot.set_webhook(url='https://telegram-actv-bot.herokuapp.com/' + token)
     return "!", 200
 
 
