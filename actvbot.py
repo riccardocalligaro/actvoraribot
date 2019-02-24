@@ -86,7 +86,7 @@ def getMessage():
 @server.route("/")
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(url='https://gentle-anchorage-82448.herokuapp.com/' + '729731832:AAHvguiztk7jnilSUPQsJORw6O4lEYcb2qc')
+    bot.set_webhook(url='https://telegram-actv-bot.herokuapp.com/' + '729731832:AAHvguiztk7jnilSUPQsJORw6O4lEYcb2qc')
     return "!", 200
 
 
