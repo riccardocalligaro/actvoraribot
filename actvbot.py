@@ -1,5 +1,6 @@
 ﻿import telebot
 import os
+import re
 from requests.exceptions import ConnectionError
 from flask import Flask, request
 from telebot import types
@@ -11,18 +12,27 @@ server = Flask(__name__)
 
 selezionata = False
 trattaUrbana = False
+trattaExtraUrbana = False
+
 # tastiera per selezionare tratta urbana o extraurbana
 markupTratta = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 markupTratta.add('🏢 Urbana', '🏠 Extraurbana')
 
+#tastiera quando si trova nel campo seleziona tratta
 markupLista = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 markupLista.add('❓ Non conosco la lista')
+markupLista.add('🔙 Indietro')
+
 
 def calcola_tratta_urbana(msg):
-    url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-{}.pdf'.format(msg.upper())
+    pattern = re.compile("([tT]\d)")
+    if pattern.search(msg.replace(" ", "").upper()) is not None:
+        url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-{}_{}.pdf'.format(msg[0].upper(),msg[1])
+    else:
+        url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-{}.pdf'.format(msg.upper())
     r = requests.get(url)
     if r.status_code == 404:
-        return "⚠️ La tratta inserita non esiste. Se pensi che sia un errore [contattami](tg://user?id=48837808)"
+        return "⚠️ La tratta inserita non esiste. Se pensi che sia un errore <a href='tg://user?id=48837808'>contattami</a>"
     return url
 
 def calcola_tratta_extraurbana(msg):
@@ -32,7 +42,7 @@ def calcola_tratta_extraurbana(msg):
         url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/EN/{}-{}.pdf'.format(msg[len(msg)-1].upper(),msg[:-1].upper())
     r = requests.get(url)
     if r.status_code == 404:
-        return "⚠️ La tratta inserita non esiste. Se pensi che sia un errore [contattami](tg://user?id=48837808)"
+        return "⚠️ La tratta inserita non esiste. Se pensi che sia un errore <a href='tg://user?id=48837808'>contattami</a>"
     return url
 
 @bot.message_handler(commands=['start'])
@@ -51,9 +61,9 @@ def invia_tratta(message):
 @bot.message_handler(func=lambda message: message.text == '🏠 Extraurbana')
 def invia_tratta(message):
     global selezionata
-    global trattaUrbana
+    global trattaExtraUrbana
     selezionata = True
-    trattaUrbana = False
+    trattaExtraUrbana = True
     bot.reply_to(message, "🚍 Inserire tratta: (es.6E, 83E)", reply_markup = markupLista)
 
 
@@ -61,18 +71,21 @@ def invia_tratta(message):
 def invia_lista(message):
     bot.reply_to(message, "ℹ️ [Qui](https://t.me/lineeactv) puoi trovare la lista con le varie tratte", reply_markup = types.ReplyKeyboardRemove(False), parse_mode="Markdown")
 
+@bot.message_handler(func=lambda message: message.text == '🔙 Indietro')
+def invia_lista(message):
+    select_tratta(message)
 
 
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
     global selezionata
     global trattaUrbana
-
+    global trattaExtraUrbana
     if selezionata is True:
-        if trattaUrbana == True:
-            bot.reply_to(message, calcola_tratta_urbana(message.text), parse_mode = 'Markdown')
-        else:
-            bot.reply_to(message, calcola_tratta_extraurbana(message.text), parse_mode='Markdown')
+        if trattaUrbana is True:
+            bot.reply_to(message, '📍 Linea: 🏢\n🚍 Tratta: '+message.text.upper()+'\n' + calcola_tratta_urbana(message.text), parse_mode = 'HTML')
+        if trattaExtraUrbana is True:
+            bot.reply_to(message, '📍 Linea: 🏠\n🚍 Tratta: '+message.text.upper()+'\n' + calcola_tratta_extraurbana(message.text), parse_mode = 'HTML')
     else:
         bot.reply_to(message,"Devi prima inserire 🏢 o 🏠")
 bot.polling()
