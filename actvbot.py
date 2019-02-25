@@ -13,7 +13,7 @@ class Bus:
             print('devo calcola_trattae')
         if self.linea == '🏢 Urbana':
             pattern = re.compile("([tT]\d)")
-            if pattern.search(self.tratta.replace(" ", "").upper()) is not None:
+            if len(self.tratta)>=2 and pattern.search(self.tratta.replace(" ", "").upper()) is not None:
                 url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-{}_{}.pdf'.format(self.tratta[0].upper(),self.tratta[1])
             else:
                 url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-{}.pdf'.format(self.tratta.upper())
