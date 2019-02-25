@@ -14,8 +14,7 @@ class Bus:
         if self.linea == '🏢 Urbana':
             pattern = re.compile("([tT]\d)")
             if len(self.tratta)>=2 and pattern.search(self.tratta.replace(" ", "").upper()) is not None:
-                url = 'http://sangennaro.it'
-                #url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-{}_{}.pdf'.format(self.tratta[0].upper(),self.tratta[1])
+                url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-t_1.pdf'
             else:
                 url = 'http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-{}.pdf'.format(self.tratta.upper())
             r = requests.get(url)
@@ -48,7 +47,6 @@ markupTratta.add('🏢 Urbana', '🏠 Extraurbana')
 #tastiera quando si trova nel campo seleziona tratta
 markupLista = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 markupLista.add('❓ Non conosco la lista')
-markupLista.add('🔙 Indietro')
 
 @bot.message_handler(commands=['start'])
 def select_tratta(message):
@@ -82,7 +80,7 @@ def echo_all(message):
     global linea
     if selezionata is True:
         bus = Bus(linea,message.text)
-        bot.reply_to(message, "\n📍 Linea: " + linea + "\n\n🚍 Tratta: "+message.text+ "\n"+ bus.calcola_tratta(), parse_mode='Markdown')
+        bot.reply_to(message, "\n📍 Linea: " + linea.upper() + "\n\n🚍 Tratta: "+message.text.upper()+ "\n"+ bus.calcola_tratta(), parse_mode='Markdown')
     else:
         bot.reply_to(message,"Devi prima inserire 🏢 o 🏠")
 
