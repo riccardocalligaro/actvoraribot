@@ -2,7 +2,7 @@
 from requests.exceptions import ConnectionError
 from flask import Flask, request
 from telebot import types
-import requests, config
+import requests
 
 class Bus:
     def __init__(self,linea, tratta):
